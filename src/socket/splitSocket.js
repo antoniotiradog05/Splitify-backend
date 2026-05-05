@@ -48,6 +48,24 @@ module.exports = (io) => {
       }
     });
 
+    socket.on('delete_expense', async ({ code, expenseId }) => {
+      try {
+        const group = await Group.findOneAndUpdate(
+          { code },
+          { $pull: { expenses: { _id: expenseId } } },
+          { new: true }
+        );
+
+        if (!group) return;
+
+        const settlements = settle(group.members, group.expenses);
+        io.to(code).emit('group_updated', { group, settlements });
+      } catch (error) {
+        console.error('Delete expense error:', error);
+        socket.emit('error_message', 'Error al borrar el gasto');
+      }
+    });
+
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
     });
