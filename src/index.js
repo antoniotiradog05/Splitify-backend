@@ -24,6 +24,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.get('/api/health', (req, res) => res.send('OK'));
 app.use('/api/groups', groupRoutes);
 
 // Socket.io
