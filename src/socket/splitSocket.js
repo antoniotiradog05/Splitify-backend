@@ -66,6 +66,24 @@ module.exports = (io) => {
       }
     });
 
+    socket.on('edit_expense', async ({ code, expenseId, updatedData }) => {
+      try {
+        const group = await Group.findOneAndUpdate(
+          { code, 'expenses._id': expenseId },
+          { $set: { 'expenses.$': { ...updatedData, _id: expenseId } } },
+          { new: true }
+        );
+
+        if (!group) return;
+
+        const settlements = settle(group.members, group.expenses);
+        io.to(code).emit('group_updated', { group, settlements });
+      } catch (error) {
+        console.error('Edit expense error:', error);
+        socket.emit('error_message', 'Error al editar el gasto');
+      }
+    });
+
     socket.on('disconnect', () => {
       console.log('User disconnected:', socket.id);
     });
