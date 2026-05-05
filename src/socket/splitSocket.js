@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Group = require('../models/Group');
 const { settle } = require('../utils/settle');
 
@@ -50,9 +51,10 @@ module.exports = (io) => {
 
     socket.on('delete_expense', async ({ code, expenseId }) => {
       try {
+        const id = new mongoose.Types.ObjectId(expenseId);
         const group = await Group.findOneAndUpdate(
           { code },
-          { $pull: { expenses: { _id: expenseId } } },
+          { $pull: { expenses: { _id: id } } },
           { new: true }
         );
 
@@ -68,9 +70,10 @@ module.exports = (io) => {
 
     socket.on('edit_expense', async ({ code, expenseId, updatedData }) => {
       try {
+        const id = new mongoose.Types.ObjectId(expenseId);
         const group = await Group.findOneAndUpdate(
-          { code, 'expenses._id': expenseId },
-          { $set: { 'expenses.$': { ...updatedData, _id: expenseId } } },
+          { code, 'expenses._id': id },
+          { $set: { 'expenses.$': { ...updatedData, _id: id } } },
           { new: true }
         );
 
