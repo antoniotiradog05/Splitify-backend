@@ -13,15 +13,27 @@ function settle(members, expenses) {
   const balance = {};
   members.forEach(m => balance[m] = 0);
 
-  expenses.forEach(({ paidBy, amount, splitAmong }) => {
+  expenses.forEach(({ paidBy, amount, splitAmong, customAmounts }) => {
     if (splitAmong.length === 0) return;
-    const share = amount / splitAmong.length;
+    
     balance[paidBy] += amount;
-    splitAmong.forEach(m => {
-      if (balance[m] !== undefined) {
-        balance[m] -= share;
-      }
-    });
+    
+    if (customAmounts && Object.keys(customAmounts).length > 0) {
+      // Reparto personalizado
+      Object.entries(customAmounts).forEach(([member, val]) => {
+        if (balance[member] !== undefined) {
+          balance[member] -= val;
+        }
+      });
+    } else {
+      // Reparto equitativo (fallback)
+      const share = amount / splitAmong.length;
+      splitAmong.forEach(m => {
+        if (balance[m] !== undefined) {
+          balance[m] -= share;
+        }
+      });
+    }
   });
 
   // 2. Separar deudores y acreedores

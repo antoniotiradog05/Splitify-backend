@@ -6,6 +6,8 @@ const expenseSchema = new mongoose.Schema({
   amount: Number,
   paidBy: String,
   splitAmong: [String],
+  category: { type: String, default: 'otros' },
+  customAmounts: { type: Map, of: Number }, // Mapa de "Nombre": Importe
   createdAt: { type: Date, default: Date.now }
 });
 
