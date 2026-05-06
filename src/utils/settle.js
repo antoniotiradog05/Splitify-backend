@@ -18,15 +18,29 @@ function settle(members, expenses) {
     
     balance[paidBy] += amount;
     
-    if (customAmounts && Object.keys(customAmounts).length > 0) {
-      // Reparto personalizado
-      Object.entries(customAmounts).forEach(([member, val]) => {
-        if (balance[member] !== undefined) {
-          balance[member] -= val;
-        }
-      });
+    if (customAmounts) {
+      // Manejar tanto objetos planos como Mongoose Maps
+      const entries = (customAmounts instanceof Map) 
+        ? Array.from(customAmounts.entries()) 
+        : Object.entries(customAmounts);
+
+      if (entries.length > 0) {
+        entries.forEach(([member, val]) => {
+          if (balance[member] !== undefined) {
+            balance[member] -= val;
+          }
+        });
+      } else {
+        // Fallback a equitativo si el mapa está vacío
+        const share = amount / splitAmong.length;
+        splitAmong.forEach(m => {
+          if (balance[m] !== undefined) {
+            balance[m] -= share;
+          }
+        });
+      }
     } else {
-      // Reparto equitativo (fallback)
+      // Reparto equitativo
       const share = amount / splitAmong.length;
       splitAmong.forEach(m => {
         if (balance[m] !== undefined) {
