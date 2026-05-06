@@ -16,7 +16,7 @@ module.exports = (io) => {
         const group = await Group.findOneAndUpdate(
           { code },
           { $addToSet: { members: username } },
-          { new: true }
+          { new: true, returnDocument: 'after' }
         );
 
         if (!group) {
@@ -37,7 +37,7 @@ module.exports = (io) => {
         const group = await Group.findOneAndUpdate(
           { code },
           { $push: { expenses: { description, amount, paidBy, splitAmong, category, customAmounts } } },
-          { new: true }
+          { new: true, returnDocument: 'after' }
         );
 
         if (!group) {
@@ -65,7 +65,7 @@ module.exports = (io) => {
           group = await Group.findOneAndUpdate(
             { code },
             { $pull: { expenses: { _id: id } } },
-            { new: true }
+            { new: true, returnDocument: 'after' }
           );
         } catch (idError) {
           // Si falla la conversión a ObjectId, intentar como string
@@ -73,7 +73,7 @@ module.exports = (io) => {
           group = await Group.findOneAndUpdate(
             { code },
             { $pull: { expenses: { _id: expenseId } } },
-            { new: true }
+            { new: true, returnDocument: 'after' }
           );
         }
 
@@ -97,7 +97,7 @@ module.exports = (io) => {
         const group = await Group.findOneAndUpdate(
           { code, 'expenses._id': id },
           { $set: { 'expenses.$': { ...updatedData, _id: id } } },
-          { new: true }
+          { new: true, returnDocument: 'after' }
         );
 
         if (!group) {
